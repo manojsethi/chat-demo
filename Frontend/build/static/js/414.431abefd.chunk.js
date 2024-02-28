@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkmy_app=self.webpackChunkmy_app||[]).push([[414],{17414:function(t,a,e){e.r(a);var p=e(13496),r=e(80184);a.default=function(t){var a=t.chartOptions,e=t.chartData;return(0,r.jsx)(p.Z,{options:a,series:e,type:"bar",width:"100%",height:"100%"})}}}]);
+//# sourceMappingURL=414.431abefd.chunk.js.map

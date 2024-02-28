@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/637.b05b0e07.chunk.js","mappings":"4HAOA,UANe,WACX,OACIA,EAAAA,EAAAA,KAAA,OAAAC,SAAK,UAEb,C","sources":["pages/dashboard/groups/index.tsx"],"sourcesContent":["\r\nconst Groups = () => {\r\n    return (\r\n        <div>Groups</div>\r\n    )\r\n}\r\n\r\nexport default Groups"],"names":["_jsx","children"],"sourceRoot":""}
