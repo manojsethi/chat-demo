@@ -1,0 +1,40 @@
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import common from "../common";
+import { IUserModelDocument } from "../interfaces/user/userModel.interface";
+import { UserModel } from "../model/user.model";
+const signUp = async (body: any) => {
+  let { email, password } = body;
+  try {
+    let findUser = await UserModel.findOne({ email });
+    if (findUser) return common.badRequest("Email already exists");
+    let generateDynamicName = email.slice(0, 3) + new Date().getTime();
+    let hashedPassword = await bcrypt.hash(password, 10);
+    let obj = { email, password: hashedPassword, name: generateDynamicName };
+    let user: any = await UserModel.create(obj);
+    delete user.password;
+    return common.successRequest(user);
+  } catch (error) {
+    return common.internalServerError();
+  }
+};
+
+const signIn = async (body: IUserModelDocument) => {
+  let { email, password } = body;
+  try {
+    let findUser = await UserModel.findOne({ email }).lean();
+    if (!findUser) return common.badRequest("Email does not exists");
+    let matchPassword = await bcrypt.compare(password, findUser.password);
+    if (!matchPassword) return common.badRequest("Wrong password");
+    await UserModel.findByIdAndUpdate(findUser._id, {
+      $set: { last_login: new Date() },
+    });
+    let user: any = findUser;
+    delete user.password;
+    let token = jwt.sign({ _id: user._id }, "ADITI");
+    return common.successRequest({ ...user, token });
+  } catch (error) {
+    return common.internalServerError();
+  }
+};
+export default { signUp, signIn };
