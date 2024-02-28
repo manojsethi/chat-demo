@@ -37,20 +37,20 @@ const Login = () => {
         <h4 className="mb-2.5 text-4xl font-bold text-navy-700 dark:text-white">
           Sign In
         </h4>
-        <p className="mb-9 ml-1 text-base text-gray-600">
+        {/* <p className="mb-9 ml-1 text-base text-gray-600">
           Register your email and password to sign up!
-        </p>
-        <div className="mb-6 flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-lightPrimary hover:cursor-pointer dark:bg-navy-800">
+        </p> */}
+        {/* <div className="mb-6 flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-lightPrimary hover:cursor-pointer dark:bg-navy-800">
           <div className="rounded-full text-xl">
             <FcGoogle />
           </div>
           <h5 className="text-sm font-medium text-navy-700 dark:text-white">
             Sign In with Google
           </h5>
-        </div>
+        </div> */}
         <div className="mb-6 flex items-center  gap-3">
           <div className="h-px w-full bg-gray-200 dark:bg-navy-700" />
-          <p className="text-base text-gray-600 dark:text-white"> or </p>
+          <p className="text-base text-gray-600 dark:text-white">  </p>
           <div className="h-px w-full bg-gray-200 dark:bg-navy-700" />
         </div>
         <Form
@@ -120,7 +120,7 @@ const Login = () => {
           </Button>
         </Form>
 
-        <div className="mt-4">
+        {/* <div className="mt-4">
           <span className=" text-sm font-medium text-navy-700 dark:text-gray-600">
             Not registered yet?
           </span>
@@ -130,7 +130,7 @@ const Login = () => {
           >
             Create an account
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -31,14 +31,14 @@ const Register = () => {
         <p className="mb-9 ml-1 text-base text-gray-600">
           Enter your email and password to sign in!
         </p>
-        <div className="mb-6 flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-lightPrimary hover:cursor-pointer dark:bg-navy-800">
+        {/* <div className="mb-6 flex h-[50px] w-full items-center justify-center gap-2 rounded-xl bg-lightPrimary hover:cursor-pointer dark:bg-navy-800">
           <div className="rounded-full text-xl">
             <FcGoogle />
           </div>
           <h5 className="text-sm font-medium text-navy-700 dark:text-white">
             Sign In with Google
           </h5>
-        </div>
+        </div> */}
         <div className="mb-6 flex items-center  gap-3">
           <div className="h-px w-full bg-gray-200 dark:bg-navy-700" />
           <p className="text-base text-gray-600 dark:text-white"> or </p>
@@ -113,7 +113,7 @@ const Register = () => {
               htmlType="submit"
               className="linear h-12 mt-2 w-full rounded-xl bg-[#00A038] py-[12px] text-base font-medium text-white transition duration-200 hover:bg-[#00A038] active:bg-brand-700 dark:bg-[#00A038] dark:text-white dark:hover:bg-[#00A038] dark:activebg-[#00A038]"
             >
-              Sign In
+              Sign Up
             </Button>
           </Form.Item>
         </Form>

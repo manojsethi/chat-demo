@@ -18,7 +18,7 @@ const getUsers = async (user: any) => {
         updatedUsers.push({
           ...x,
           profile:
-            x.profile && `${process.env.CHAT_MANOJ_DEMO_BASE_URL}${x?.profile}`,
+            x.profile && `${process.env.CHAT_DEMO_MANOJ_BACKEND_BASE_URL}${x?.profile}`,
           unReadedMessages: unreadMessagesCount,
         });
       })
@@ -66,7 +66,7 @@ const updateUserProfile = async (
     );
     let modifiedUser: any = {
       ...updatedUser?.toObject(),
-      profile: `${process.env.CHAT_MANOJ_DEMO_BASE_URL}${updatedUser?.profile}`,
+      profile: `${process.env.CHAT_DEMO_MANOJ_BACKEND_BASE_URL}${updatedUser?.profile}`,
     };
     delete modifiedUser?.password;
 

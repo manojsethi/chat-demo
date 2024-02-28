@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { StatusCodes } from "http-status-codes";
-export const base_url = "http://localhost:9000/";
+export const base_url = process.env.CHAT_DEMO_MANOJ_FRONTEND_BASE_URL;
 
 const axiosInstance = axios.create({
   baseURL: base_url,
