@@ -18,7 +18,10 @@ const getUsers = async (user: any) => {
         updatedUsers.push({
           ...x,
           profile:
-            x.profile && `${process.env.CHAT_DEMO_MANOJ_BACKEND_BASE_URL}${x?.profile}`,
+            x.profile &&
+            `${"https://api-chat-demo.manojsethi.com"}${
+              x?.profile?.startsWith("/") ? x?.profile : "/" + x?.profile
+            }`,
           unReadedMessages: unreadMessagesCount,
         });
       })
@@ -66,7 +69,9 @@ const updateUserProfile = async (
     );
     let modifiedUser: any = {
       ...updatedUser?.toObject(),
-      profile: `${process.env.CHAT_DEMO_MANOJ_BACKEND_BASE_URL}${updatedUser?.profile}`,
+      profile: `${"https://api-chat-demo.manojsethi.com"}${
+        updatedUser?.profile?.startsWith("/") ? updatedUser?.profile : "/" + updatedUser?.profile
+      }`,
     };
     delete modifiedUser?.password;
 
