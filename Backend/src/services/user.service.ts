@@ -19,7 +19,7 @@ const getUsers = async (user: any) => {
           ...x,
           profile:
             x.profile &&
-            `${"https://api-chat-demo.manojsethi.com"}${
+            `${process.env.CHATIFY_DEMO_BASE_URL}${
               x?.profile?.startsWith("/") ? x?.profile : "/" + x?.profile
             }`,
           unReadedMessages: unreadMessagesCount,
@@ -69,8 +69,10 @@ const updateUserProfile = async (
     );
     let modifiedUser: any = {
       ...updatedUser?.toObject(),
-      profile: `${"https://api-chat-demo.manojsethi.com"}${
-        updatedUser?.profile?.startsWith("/") ? updatedUser?.profile : "/" + updatedUser?.profile
+      profile: `${process.env.CHATIFY_DEMO_BASE_URL}${
+        updatedUser?.profile?.startsWith("/")
+          ? updatedUser?.profile
+          : "/" + updatedUser?.profile
       }`,
     };
     delete modifiedUser?.password;

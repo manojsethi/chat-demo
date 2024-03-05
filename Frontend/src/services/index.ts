@@ -79,6 +79,12 @@ class ChatAppServices {
       .then((res) => res.data)
       .catch((err) => err);
   };
+  uploadImage = (formData: FormData) => {
+    return baseInstance
+      .post("/chat/upload-media", formData)
+      .then((res) => res.data)
+      .catch((err) => err);
+  };
 }
 // let allServices =
 export default new ChatAppServices();

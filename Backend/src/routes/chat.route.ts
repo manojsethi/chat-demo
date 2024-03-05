@@ -1,12 +1,15 @@
 import express from "express";
 import passport from "passport";
 import chatController from "../controllers/chat.controller";
-let authenication = passport.authenticate("jwt", { session: false });
+let authenticate = passport.authenticate("jwt", { session: false });
 
 const router = express.Router();
 router
   .route("/message")
-  .post(authenication, chatController.sendMessage)
-  .get(authenication, chatController.getChatWithUser);
-router.get("/group", authenication, chatController.getGroupChats);
+  .post(authenticate, chatController.sendMessage)
+  .get(authenticate, chatController.getChatWithUser);
+router.get("/group", authenticate, chatController.getGroupChats);
+
+router.post("/upload-media", chatController.uploadMedia);
+
 export default router;

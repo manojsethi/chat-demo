@@ -11,12 +11,12 @@ import { UserModel } from "../model/user.model";
 const createGroup = async (user: any, body: IGroupModelDocument) => {
   let { name, about } = body;
   try {
-    let findUser = await UserModel.findOne({ _id: user._id });
-    if (!findUser) return common.internalServerError();
+    let foundUser = await UserModel.findOne({ _id: user._id });
+    if (!foundUser) return common.badRequest("User not found!");
     await GroupModel.create({
       createdAt: new Date(),
-      createdBy: findUser._id,
-      userDetails: [{ id: findUser._id, joined_date: new Date() }],
+      createdBy: foundUser._id,
+      userDetails: [{ id: foundUser._id, joined_date: new Date() }],
       name,
       about,
     });
@@ -26,21 +26,20 @@ const createGroup = async (user: any, body: IGroupModelDocument) => {
     return common.internalServerError();
   }
 };
-
 const getMyGroups = async (user: any) => {
   try {
-    let findUser = await UserModel.findOne({ _id: user._id });
-    if (!findUser) return common.internalServerError();
+    let foundUser = await UserModel.findOne({ _id: user._id });
+    if (!foundUser) return common.internalServerError();
 
-    let findUserGroups = await GroupModel.find({
+    let foundUserGroups = await GroupModel.find({
       userDetails: {
-        $elemMatch: { id: findUser._id },
+        $elemMatch: { id: foundUser._id },
       },
     })
       .populate("userDetails.id")
       .lean();
     let updatedGroupsWithUnreadMessages = await Promise.all(
-      findUserGroups.map(async (allGroups) => {
+      foundUserGroups.map(async (allGroups) => {
         let countUnreadMessages = await ChatModel.countDocuments({
           chatType: "Group",
           sent_to: allGroups._id,

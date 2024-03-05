@@ -1,8 +1,12 @@
+import React from "react";
+import GroupChat from "./group";
 
 const Groups = () => {
-    return (
-        <div>Groups</div>
-    )
-}
+  return (
+    <div>
+      <GroupChat />
+    </div>
+  );
+};
 
-export default Groups
+export default Groups;

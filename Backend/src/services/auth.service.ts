@@ -31,7 +31,7 @@ const signIn = async (body: IUserModelDocument) => {
     });
     let user: any = findUser;
     delete user.password;
-    let token = jwt.sign({ _id: user._id }, "ADITI");
+    let token = jwt.sign({ _id: user._id }, "chatify-demo-123");
     return common.successRequest({ ...user, token });
   } catch (error) {
     return common.internalServerError();

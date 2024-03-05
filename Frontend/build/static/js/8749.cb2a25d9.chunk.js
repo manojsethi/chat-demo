@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkmy_app=self.webpackChunkmy_app||[]).push([[8749],{38749:function(e,n,p){p.r(n);var u=p(80184);n.default=function(){return(0,u.jsx)("div",{children:"Deposit"})}}}]);
+//# sourceMappingURL=8749.cb2a25d9.chunk.js.map

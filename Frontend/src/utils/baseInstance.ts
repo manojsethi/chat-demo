@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import { StatusCodes } from "http-status-codes";
-export const base_url = "https://api-chat-demo.manojsethi.com";
+export const base_url = process.env.REACT_APP_CHAT_DEMO_MANOJ_FRONTEND_BASE_URL;
 const axiosInstance = axios.create({
   baseURL: base_url,
 });

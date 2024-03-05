@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkmy_app=self.webpackChunkmy_app||[]).push([[3189],{13189:function(e,t,s){s.r(t);var c=s(16856),a=s(80184);t.default=function(){return(0,a.jsx)("div",{className:"text-black flex justify-center items-center mt-44",children:(0,a.jsxs)("div",{className:"text-center",children:[" ",(0,a.jsx)("div",{className:"flex justify-center",children:(0,a.jsx)(c.POW,{className:"text-7xl text-green-500"})}),(0,a.jsx)("h1",{className:"text-3xl text-center dark:text-white",children:"Free Chat With Users"})]})})}}}]);
+//# sourceMappingURL=3189.c10be38f.chunk.js.map

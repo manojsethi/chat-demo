@@ -8,6 +8,10 @@ export interface IChatData {
   _id: string;
   sent_to: string;
   sent_from: string;
+  message_type?: string;
+  file_url?: string;
+  width?: number;
+  height?: number;
   message: string;
   isReaded: boolean;
   chatType?: "Group" | "Personal";

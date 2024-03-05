@@ -9,6 +9,8 @@ const ChatSchema = new mongoose.Schema({
   sent_to: mongoose.Types.ObjectId,
   sent_from: { type: mongoose.Types.ObjectId, ref: UserModel },
   message: String,
+  message_type: String,
+  file_url: String,
   isReadedBy: { type: [mongoose.Types.ObjectId] },
   chatType: { default: ChatType.PERSONAL, type: String },
   date: { type: Date, default: new Date() },

@@ -1,7 +1,8 @@
 
 import {
   MdChatBubble,
-  MdDashboard
+  MdDashboard,
+  MdGroup
 } from "react-icons/md";
 export interface IAllAreaRoutes {
   name: string;

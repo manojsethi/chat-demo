@@ -10,6 +10,7 @@ import { GroupModel } from "../model/groups.model";
 import { RoomModel } from "../model/room.model";
 import { SocketModel } from "../model/socket.model";
 import { UserModel } from "../model/user.model";
+import { UploadedFile } from "express-fileupload";
 
 const sendMessage = async (user: any, body: IChatModelDocument) => {
   let { message, sent_to, chatType } = body;
@@ -69,7 +70,7 @@ const sendMessageSocketService = async (
   _socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
   body: any
 ) => {
-  let { message, sent_to, chatType } = body;
+  let { message, sent_to, chatType, message_type, file_url } = body;
   try {
     if (chatType === "Group") {
       let myDetail = await UserModel.findById(user._id).lean();
@@ -80,20 +81,26 @@ const sendMessageSocketService = async (
         );
       await ChatModel.create({
         message: message,
+        message_type,
+        file_url,
         sent_from: user._id,
         sent_to: userExistedGroup._id,
         chatType: "Group",
       });
       _socket
         .to(userExistedGroup._id.toString())
-        .emit("groupMessage", { sent_from: myDetail, message });
+        .emit("groupMessage", {
+          sent_from: myDetail,
+          message,
+          message_type,
+          file_url,
+        });
 
       return common.successRequest({ success: true });
     }
     let findUser = await UserModel.findById(
       new mongoose.Types.ObjectId(sent_to)
     ).lean();
-    console.log(findUser, "ey ");
     if (!findUser)
       return common.badRequest(
         "This user does not exist or deleted their account"
@@ -101,6 +108,8 @@ const sendMessageSocketService = async (
 
     await ChatModel.create({
       message: message,
+      message_type,
+      file_url,
       sent_from: user._id,
       sent_to: findUser._id,
     });
@@ -108,9 +117,12 @@ const sendMessageSocketService = async (
       users: { $all: [findUser._id, user._id] },
     }).lean();
     if (findUserRoom)
-      _socket.broadcast
-        .to(findUserRoom._id.toString())
-        .emit("chatMessage", { sent_from: user, message });
+      _socket.broadcast.to(findUserRoom._id.toString()).emit("chatMessage", {
+        sent_from: user,
+        message,
+        message_type,
+        file_url,
+      });
     return common.successRequest({ success: true });
   } catch (error) {
     return common.internalServerError();
@@ -177,9 +189,27 @@ const getGroupChats = async (user: any, params: any) => {
     return common.internalServerError();
   }
 };
+const uploadMediaService = async (file: UploadedFile) => {
+  try {
+    let uploadedRespnse = await common.uploadImage({
+      buffer: file.data,
+      fieldname: file.name,
+      mimetype: file.mimetype,
+      originalname: file.name,
+      size: file.size,
+    });
+
+    return common.successRequest({
+      uploadedFileUrl: uploadedRespnse,
+    });
+  } catch (error) {
+    return common.internalServerError();
+  }
+};
 export default {
   sendMessage,
   getChatWithUser,
   getGroupChats,
   sendMessageSocketService,
+  uploadMediaService,
 };

@@ -1,10 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { ISignInUserData } from "../interfaces/response/signInUser.interface";
-interface IMessageInfo {
-  message: string;
-  sentBy: { name: string; id: string };
-}
 
 interface ISocketData {
   user: ISignInUserData | null;
@@ -29,7 +25,7 @@ export const SocketProvider = ({ Child }: any) => {
       setSocket((prev) => {
         prev = {
           ...prev,
-          mySocket: io("https://api-chat-demo.manojsethi.com", {
+          mySocket: io(`${process.env.REACT_APP_CHAT_DEMO_MANOJ_FRONTEND_BASE_URL}`, {
             query: {
               _id: socket.user?._id,
             },

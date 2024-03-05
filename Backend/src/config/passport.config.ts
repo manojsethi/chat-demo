@@ -4,7 +4,7 @@ import { UserModel } from "../model/user.model";
 
 var opts = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: "ADITI",
+  secretOrKey: "chatify-demo-123",
 };
 export const jwtStrategy = (passport: PassportStatic) => {
   passport.use(

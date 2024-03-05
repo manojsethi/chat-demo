@@ -1,1 +1,0 @@
-{"version":3,"file":"static/js/749.d37de16d.chunk.js","mappings":"4HAOA,UANgB,WACZ,OACIA,EAAAA,EAAAA,KAAA,OAAAC,SAAK,WAEb,C","sources":["pages/dashboard/deposit/index.tsx"],"sourcesContent":["\r\nconst Deposit = () => {\r\n    return (\r\n        <div>Deposit</div>\r\n    )\r\n}\r\n\r\nexport default Deposit"],"names":["_jsx","children"],"sourceRoot":""}

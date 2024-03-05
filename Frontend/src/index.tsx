@@ -1,18 +1,16 @@
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import { ChatProvider } from './context/chat.context';
-import { SocketProvider } from './context/socket.context';
-import './index.css';
-import reportWebVitals from './reportWebVitals';
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import { ChatProvider } from "./context/chat.context";
+import { SocketProvider } from "./context/socket.context";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 root.render(
   // <React.StrictMode>
-  <SocketProvider Child={<ChatProvider Child={<App />
-  } />
-  } />
+  <SocketProvider Child={<ChatProvider Child={<App />} />} />
 
   // </React.StrictMode>
 );
