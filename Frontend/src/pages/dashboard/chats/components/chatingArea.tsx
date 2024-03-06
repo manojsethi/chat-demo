@@ -10,7 +10,7 @@ const ChatingArea = (props: { sideBarChatChild: any; chatAreaChild: any }) => {
           <Col md={8} xl={8}>
             <div
               style={{ height: "66vh" }}
-              className="shadow-3xl overflow-y-auto   rounded-md"
+              className="shadow-2xl overflow-y-auto   rounded-md"
             >
               {sideBarChatChild}
             </div>

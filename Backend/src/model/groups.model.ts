@@ -1,5 +1,5 @@
 import mongoose, { model } from "mongoose";
-import { IGroupModelDocument } from "../interfaces/group/group.interface";
+import { IGroupDocument } from "../interfaces/group/group.interface";
 import { UserModel } from "./user.model";
 
 const GroupSchema = new mongoose.Schema({
@@ -7,6 +7,7 @@ const GroupSchema = new mongoose.Schema({
     {
       joined_at: { type: Date },
       id: { type: mongoose.Types.ObjectId, ref: UserModel },
+      is_admin: { type: Boolean, default: false },
     },
   ],
   createdBy: mongoose.Types.ObjectId,
@@ -14,4 +15,4 @@ const GroupSchema = new mongoose.Schema({
   about: String,
   createdAt: { type: Date, default: new Date() },
 });
-export const GroupModel = model<IGroupModelDocument>("groups", GroupSchema);
+export const GroupModel = model<IGroupDocument>("groups", GroupSchema);

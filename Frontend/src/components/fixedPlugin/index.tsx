@@ -1,5 +1,3 @@
-// Chakra Imports
-// Custom Icons
 import React from "react";
 
 import { RiMoonFill, RiSunFill } from "react-icons/ri";
@@ -23,8 +21,6 @@ const FixedPlugin=(props:any)=> {
       }}
       {...rest}
     >
-      {/* // left={document.documentElement.dir === "rtl" ? "35px" : ""}
-      // right={document.documentElement.dir === "rtl" ? "" : "35px"} */}
       <div className="cursor-pointer text-gray-600">
         {darkmode ? (
           <RiSunFill className="h-4 w-4 text-white" />

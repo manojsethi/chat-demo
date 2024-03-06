@@ -18,6 +18,7 @@ export interface UserDetail {
   joined_at?: string;
   id: Id;
   _id: string;
+  is_admin: boolean;
 }
 export interface Id {
   _id: string;

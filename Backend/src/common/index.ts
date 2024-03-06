@@ -45,7 +45,7 @@ async function uploadImage(
 ): Promise<string> {
   let s3 = new S3Client({
     forcePathStyle: false,
-    endpoint: process.env.CHATIFY_DEMO_BUCKET_URL,
+    endpoint: `https://${process.env.CHATIFY_DEMO_BUCKET_URL}`,
     region: "us-east-1",
     credentials: {
       accessKeyId: process.env.CHATIFY_DEMO_BUCKET_ACCESS_TOKEN ?? "",
@@ -84,8 +84,7 @@ async function uploadImage(
   // Upload the file to S3
   await s3.send(new PutObjectCommand(params));
 
-  //https://dev-projects-bucket.sgp1.cdn.digitaloceanspaces.com/6c5f4212-3245-4ae3-8d44-bc732700305b..png
-  return `https://${params.Bucket}.${process.env.CHATIFY_DEMO_BUCKET_URL!.slice(8)}/${
+  return `https://${params.Bucket}.${process.env.CHATIFY_DEMO_BUCKET_URL}/${
     params.Key
   }`;
 }

@@ -1,16 +1,13 @@
-import { Button, Card, Form, Input, Modal, Select } from "antd";
+import { Card, Form, Input, Modal } from "antd";
 import { useForm } from "antd/es/form/Form";
 import FormItem from "antd/es/form/FormItem";
 import React, { useEffect } from "react";
 
-function CreateGroupModal({ open, setOpen }: any) {
+function CreateGroupModal({ open, setOpen, handleSubmit, creatingGroup }: any) {
   const [form] = useForm();
 
   useEffect(() => {
-    console.log('hi')
     return () => {
-    console.log('bye')
-
       form.resetFields();
     };
   }, []);
@@ -27,36 +24,38 @@ function CreateGroupModal({ open, setOpen }: any) {
       okButtonProps={{
         title: "Submit",
         type: "primary",
+        loading: creatingGroup,
+        disabled: creatingGroup,
       }}
     >
       <Card>
-        <Form
-          form={form}
-          onFinish={() => {}}
-          onFinishFailed={(err) => {
-            console.log(err, "error");
-          }}
-        >
+        <Form form={form} onFinish={handleSubmit} onFinishFailed={() => {}}>
           <div>
             <label>Name</label>
-            <FormItem name={"name"} required>
+            <FormItem
+              name={"name"}
+              required
+              rules={[
+                {
+                  required: true,
+                  message: "Name is required",
+                },
+              ]}
+            >
               <Input />
             </FormItem>
             <label>About</label>
-            <FormItem name={"about"} required>
+            <FormItem
+              name={"about"}
+              required
+              rules={[
+                {
+                  required: true,
+                  message: "About is required",
+                },
+              ]}
+            >
               <Input />
-            </FormItem>
-
-            <label>Select members</label>
-            <FormItem name={"members"}>
-              <Select mode="multiple">
-                <Select.Option key={1} value={1}>
-                  User 1
-                </Select.Option>
-                <Select.Option key={2} value={2}>
-                  User 2
-                </Select.Option>
-              </Select>
             </FormItem>
           </div>
         </Form>

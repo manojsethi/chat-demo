@@ -4,6 +4,7 @@ interface IMessageInfo {
   file_url?: string;
   message_type?: string;
   sentBy: { name: string; id: string };
+  group_id?: string
 }
 interface IChatContext {
   messageInfo: IMessageInfo;

@@ -4,7 +4,6 @@ import { HttpStatusCode } from "axios";
 import { useContext, useEffect, useState } from "react";
 import Loader from "../../../../components/loader";
 import { ChatContext } from "../../../../context/chat.context";
-import { SocketContext } from "../../../../context/socket.context";
 import ChatServices from "../../../../services/index";
 import ChatingArea from "../components/chatingArea";
 import ChatInGroup from "./chatInGroup";
@@ -17,12 +16,10 @@ const GroupChat = () => {
     null
   );
   const { messageInfo } = useContext(ChatContext);
-  const { socket } = useContext(SocketContext);
   const [loading, setLoading] = useState<boolean>(false);
   const getAllMyGroups = async () => {
     setLoading(true);
     let response = await ChatServices.getMygroups();
-    console.log(response,"response")
     if (response.statusCode === HttpStatusCode.Ok)
       setGroupsList(
         response.data.map((x) => {
@@ -39,33 +36,33 @@ const GroupChat = () => {
   }, []);
 
   useEffect(() => {
-    if (messageInfo.message) {
-      let foundGroupExists = groupsList.find(
-        (x) => x._id.toString() === messageInfo.sentBy.id.toString()
+    if (messageInfo.group_id) {
+      let foundGroupIndex = groupsList.findIndex(
+        (x) => x._id.toString() === messageInfo.group_id?.toString()
       );
-      console.log(foundGroupExists,"foundGroupExists")
-      setGroupsList((prev) => {
-        //pending work
-        return [...prev];
-      });
+      if (foundGroupIndex !== -1)
+        setGroupsList((prev) => {
+          let _prev = prev;
+          if (selectedGroup?._id !== messageInfo.group_id) {
+            let count = _prev[foundGroupIndex].unreadMessages ?? 0;
+            count += 1;
+            _prev[foundGroupIndex].unreadMessages = count;
+          }
+          return _prev;
+        });
     }
   }, [messageInfo]);
   useEffect(() => {
     if (selectedGroup) {
-      socket.mySocket.emit("startChat", {
-        id: socket.user?._id,
-        userId: selectedGroup._id,
-      });
       setGroupsList((prev) =>
-        prev.map((prevUsers) => {
-          if (prevUsers._id === selectedGroup._id)
-            prevUsers = { ...prevUsers, unreadMessages: 0 };
-          return prevUsers;
+        prev.map((prevGroup) => {
+          if (prevGroup._id === selectedGroup._id)
+            prevGroup = { ...prevGroup, unreadMessages: 0 };
+          return prevGroup;
         })
       );
     }
   }, [selectedGroup]);
-
   return (
     <div>
       {loading ? (
@@ -79,11 +76,16 @@ const GroupChat = () => {
         )
       ) : (
         <ChatingArea
+          setRefreshGroups={(value) => {
+            if (value) {
+              getAllMyGroups();
+            }
+          }}
           sideBarChatChild={
             groupsList && (
               <div className="py-3">
                 {groupsList?.map((x) => (
-                  <div className="px-2 mt-1 ">
+                  <div className="px-2 mt-1 " key={x._id}>
                     <div
                       className={`${
                         x.isSelected

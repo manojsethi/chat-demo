@@ -29,10 +29,25 @@ const DashBoard = () => {
             message: args.message,
             sentBy: { id: args.sent_from._id, name: args.sent_from.name },
           });
-          console.log(args,"args")
           if (args.sent_from._id !== loggedInUser._id)
             notification.info({
               message: args.sent_from.name,
+              type: "info",
+              description: args?.message_type ? 'Sent you a file':'Sent you a message'
+            });
+        }
+      });
+      socket.mySocket.on("groupMessage", (args: any) => {
+        console.log("received group message args", args)
+        if (args) {
+          setMessageInfo({
+            ...args,
+            group_id: args.sent_to,
+            sentBy: { id: args.sent_from._id, name: args.sent_from.name },
+          });
+          if (args.sent_from._id !== loggedInUser._id)
+            notification.info({
+              message: `${args.group_name}`,
               type: "info",
               description: args?.message_type ? 'Sent you a file':'Sent you a message'
             });

@@ -1,6 +1,6 @@
 import { ISendChatMessage } from "../interfaces/request/chat.interface";
 import {
-  IAddGroupParticipant,
+  IAddGroupParticipants,
   ICreateGroupPayload,
 } from "../interfaces/request/group.interface";
 import { ILogin } from "../interfaces/request/login.interface";
@@ -55,7 +55,7 @@ class ChatAppServices {
       .then((res) => res.data)
       .catch((err) => err);
   };
-  addParticipant = async (payload: IAddGroupParticipant) => {
+  addParticipant = async (payload: IAddGroupParticipants) => {
     return await baseInstance
       .post("/group/participant", payload)
       .then((res) => res.data)
@@ -67,7 +67,7 @@ class ChatAppServices {
       .then((res) => res.data)
       .catch((err) => err);
   };
-  getGroupChats = (groupId: string): Promise<IChatResponse> => {
+  getGroupChats = async (groupId: string): Promise<IChatResponse> => {
     return baseInstance
       .get(`/chat/group?groupId=${groupId}`)
       .then((res) => res.data)
@@ -85,6 +85,15 @@ class ChatAppServices {
       .then((res) => res.data)
       .catch((err) => err);
   };
+  getAvailableUsersForGroup = async (
+    group_id: string
+  ): Promise<any> => {
+    return await baseInstance
+      .get(`/group/users/${group_id}`)
+      .then((res) => res.data)
+      .catch((err) => err);
+  };
 }
-// let allServices =
-export default new ChatAppServices();
+
+const services = new ChatAppServices();
+export default services

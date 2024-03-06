@@ -5,7 +5,8 @@ import { RoomModel } from "../model/room.model";
 import { SocketModel } from "../model/socket.model";
 import { UserModel } from "../model/user.model";
 import chatService from "../services/chat.service";
-export let senderSocket: Socket<
+import { GroupModel } from "../model/groups.model";
+export let senderSocket: Server<
   DefaultEventsMap,
   DefaultEventsMap,
   DefaultEventsMap,
@@ -33,7 +34,6 @@ const ioStrategy = (
         upsert: true,
       }
     );
-    console.log(_id, "COME ID");
     // socket.on()
     socket.on("startChat", async (arg: any) => {
       let { id, userId } = arg;
@@ -73,14 +73,18 @@ const ioStrategy = (
     });
     if (_id) {
       let foundUserRooms = await RoomModel.find({ users: { $in: _id } }).lean();
-      foundUserRooms.forEach((allRooms) =>
-        socket.join(allRooms._id.toString())
-      );
+      let foundGroups = await GroupModel.find({
+        "userDetails.id": { $in: _id },
+      }).lean();
+      foundGroups.map((group) => socket.join(group._id.toString()));
+      foundUserRooms.forEach((allRooms) => {
+        socket.join(allRooms._id.toString());
+      });
       socket.on("personalMessage", (arg: any) => {
-        console.log(arg, "arg");
         chatService.sendMessageSocketService(findUser, socket, arg);
       });
     }
   });
+  senderSocket = io;
 };
 export default ioStrategy;

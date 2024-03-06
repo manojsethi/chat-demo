@@ -1,11 +1,29 @@
-import { Button, Card, Col, Modal, Row } from "antd";
+import { Button, Card, Col, Row, notification } from "antd";
 import React, { useState } from "react";
 import services from "../../../../services";
 import CreateGroupModal from "./createGroup.modal";
 
-const ChatingArea = (props: { sideBarChatChild: any; chatAreaChild: any }) => {
+const ChatingArea = (props: {
+  sideBarChatChild: any;
+  chatAreaChild: any;
+  setRefreshGroups: (value: boolean) => void;
+}) => {
   const { sideBarChatChild, chatAreaChild } = props;
   const [openCreateGroupModal, setOpenCreateGroupModal] = useState(false);
+  const [creatingGroup, setCreatingGroup] = useState(false);
+
+  const handleGroupCreate = async (values: any) => {
+    setCreatingGroup(true);
+
+    let response = await services.createGroup(values);
+    if (response.success) {
+      notification.success({
+        message: "Group created successfully",
+      });
+      setOpenCreateGroupModal(false);
+    }
+    setCreatingGroup(false);
+  };
   return (
     <div>
       <Button
@@ -22,7 +40,7 @@ const ChatingArea = (props: { sideBarChatChild: any; chatAreaChild: any }) => {
           <Col md={8} xl={8}>
             <div
               style={{ height: "66vh" }}
-              className="shadow-3xl overflow-y-auto   rounded-md"
+              className="shadow-2xl overflow-y-auto   rounded-md"
             >
               {sideBarChatChild}
             </div>
@@ -34,6 +52,8 @@ const ChatingArea = (props: { sideBarChatChild: any; chatAreaChild: any }) => {
       </Card>
       {openCreateGroupModal && (
         <CreateGroupModal
+          handleSubmit={handleGroupCreate}
+          creatingGroup={creatingGroup}
           open={openCreateGroupModal}
           setOpen={setOpenCreateGroupModal}
         />

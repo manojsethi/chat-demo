@@ -1,5 +1,14 @@
 import { GroupOutlined } from "@ant-design/icons";
-import { Avatar, Button, Card, Image, Input, Spin, Upload } from "antd";
+import {
+  Avatar,
+  Button,
+  Card,
+  Image,
+  Input,
+  Spin,
+  Upload,
+  notification,
+} from "antd";
 import { HttpStatusCode } from "axios";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { FiPaperclip, FiSend, FiSmile } from "react-icons/fi";
@@ -13,6 +22,8 @@ import { formatDate, formatTime } from "../../../../utils/helpers";
 import appService from "../../../../services";
 import { MdClose } from "react-icons/md";
 import { IMyGroupsData } from "../../../../interfaces/response/groupRespo.interface";
+import AddGroupParticipantsModal from "../components/addParticipants.modal";
+import services from "../../../../services/index";
 
 const ChatInGroup = ({
   selectedGroup,
@@ -34,10 +45,14 @@ const ChatInGroup = ({
   const [file, setFile] = useState<File>();
   const [isMojiOpen, setIsMojiOpen] = useState<boolean>(false);
   const [uploadingImages, setUploadingImage] = useState<boolean>(false);
+  const [openAddParticipantModal, setOpenAddParticipantModal] =
+    useState<boolean>(false);
 
-  const getChatsWithUser = async (userId: string) => {
+  const [addingParticipants, setAddingParticipants] = useState<boolean>(false);
+
+  const getChatInGroup = async (groupId: string) => {
     setLoader(true);
-    let response = await ChatServices.getChats(userId);
+    let response = await ChatServices.getGroupChats(groupId);
     if (response.statusCode === HttpStatusCode.Ok) setMyChats(response.data);
     setLoader(false);
   };
@@ -59,7 +74,7 @@ const ChatInGroup = ({
       if (uploadedImage) return uploadedImage.data.uploadedFileUrl;
     }
   };
-  const messageHandler = async (id: string, message: string) => {
+  const messageHandler = async (userId: string, message: string) => {
     setMessage("");
     let fileUrl = await uploadFile();
     setMyChats((prev) => {
@@ -76,8 +91,9 @@ const ChatInGroup = ({
           date: new Date().toString(),
           _id: Math.random().toString(),
           isReaded: false,
-          sent_to: id,
-          chatType: "Personal",
+          sent_to: userId,
+          group_id: selectedGroup._id,
+          chatType: "Group",
         },
       ];
     });
@@ -90,18 +106,21 @@ const ChatInGroup = ({
         message_type: "file",
         file_url: fileUrl,
       }),
-      sent_to: id,
-      chatType: "Personal",
+      sent_to: userId,
+      group_id: selectedGroup._id,
+      chatType: "Group",
     });
   };
 
   useEffect(() => {
-    if (selectedGroup) getChatsWithUser(selectedGroup._id);
+    if (selectedGroup) getChatInGroup(selectedGroup._id);
   }, [selectedGroup]);
+
   useEffect(() => {
     if (
-      messageInfo.message &&
-      messageInfo.sentBy.id.toString() === selectedGroup._id
+      messageInfo &&
+      messageInfo.group_id &&
+      messageInfo.group_id?.toString() === selectedGroup._id
     )
       setMyChats((prev) => {
         return [
@@ -118,22 +137,19 @@ const ChatInGroup = ({
             _id: Math.random().toString(),
             isReaded: true,
             sent_to: loggedInUser._id,
-            chatType: "Personal",
+            group_id: messageInfo.group_id,
+            chatType: "Group",
           },
         ];
       });
-  }, [messageInfo.message]);
-
+  }, [messageInfo]);
   return (
     <>
       <div>
         <div className="bg-[#00A038] rounded-xl py-4">
           <div className="flex justify-between px-6">
             <div className="text-white flex gap-4 items-center">
-              <Avatar
-                size={"large"}
-                src={ <GroupOutlined />}
-              />
+              <Avatar size={"large"} src={<GroupOutlined />} />
               <p className="font-semibold">{selectedGroup?.name}</p>
             </div>
             <div>
@@ -152,10 +168,27 @@ const ChatInGroup = ({
             {loader ? (
               <Loader />
             ) : (
-              <div className="shadow-3xl dark:shadow bg-white  mt-6   dark: dark:bg-navy-900 overflow-y-auto overflow-x-hidden ">
+              <div className="shadow-2xl dark:shadow bg-white  mt-6   dark: dark:bg-navy-900 overflow-y-auto overflow-x-hidden ">
+                {selectedGroup.userDetails?.some((details) => {
+                  if (details.id._id === loggedInUser._id && details.is_admin)
+                    return true;
+                }) && (
+                  <div className="flex justify-between m-4">
+                    <div></div>
+                    <Button
+                      onClick={() => {
+                        setOpenAddParticipantModal(true);
+                      }}
+                      type="primary"
+                      className="text-white mt-2 text-base font-medium"
+                    >
+                      + Add Participant
+                    </Button>
+                  </div>
+                )}
                 <div className="flex justify-center mt-2 py-4">
                   <p className="text-center text-white bg-[#00A038] px-10 rounded-2xl  ">
-                    {formatDate(myChats?.[0]?.date)}
+                    {myChats?.[0]?.date && formatDate(myChats?.[0]?.date)}
                   </p>
                 </div>
                 <div
@@ -163,12 +196,11 @@ const ChatInGroup = ({
                   style={{ minHeight: "49vh" }}
                 >
                   {myChats && myChats.length > 0 ? (
-                    myChats.map((x) => {
+                    myChats.map((x:any) => {
                       let _width = 200;
                       let _height = 200;
-
                       if (
-                        x.sent_from.toString() !== loggedInUser._id.toString()
+                        x?.sent_from?._id?.toString() !== loggedInUser._id.toString()
                       )
                         return x.file_url ? (
                           <div key={x._id} className="flex mb-3 px-3">
@@ -333,6 +365,32 @@ const ChatInGroup = ({
             />
           </Spin>
         </div>
+        {openAddParticipantModal && (
+          <AddGroupParticipantsModal
+            open={openAddParticipantModal}
+            setOpen={(value: any) => {
+              setOpenAddParticipantModal(value);
+            }}
+            groupDetails={selectedGroup}
+            handleSubmit={async (values: any) => {
+              setAddingParticipants(true);
+              {
+                let addedResponse = await services.addParticipant({
+                  group_id: selectedGroup._id,
+                  participants: values.participants,
+                });
+                if (addedResponse.success) {
+                  notification.success({
+                    message: "Participants added in the group",
+                  });
+                }
+              }
+              setAddingParticipants(false);
+              setOpenAddParticipantModal(false);
+            }}
+            addingParticipants={addingParticipants}
+          />
+        )}
       </div>
     </>
   );

@@ -25,11 +25,11 @@ const routes: IAllAreaRoutes[] = [
     path: "./pages/dashboard/chats",
   },
 
-  // {
-  //   name: "Groups",
-  //   key: "/groups",
-  //   icon: <MdGroup className="h-6 w-6" />,
-  //   path: "./pages/dashboard/groups",
-  // },
+  {
+    name: "Groups",
+    key: "/groups",
+    icon: <MdGroup className="h-6 w-6" />,
+    path: "./pages/dashboard/groups",
+  },
 ];
 export default routes;

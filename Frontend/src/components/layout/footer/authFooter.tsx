@@ -45,5 +45,5 @@ const AuthFooter = () => {
       </ul>
     </div>
   );
-}
-export default AuthFooter
+};
+export default AuthFooter;

@@ -16,4 +16,26 @@ const getGroupDetails = async (req: Request, res: Response) => {
   let result = await groupService.getGroupDetails(req.user, req.query as any);
   return res.status(result?.statusCode ?? 400).send(result);
 };
-export default { createGroup, getGroups, addParticipantGroup, getGroupDetails };
+
+const removeParticipant = async (req: Request, res: Response) => {
+  let result = await groupService.removeParticipantGroup(
+    req.user,
+    req.body as any
+  );
+  return res.status(result?.statusCode ?? 400).send(result);
+};
+
+const fetchAvailableUsersForGroup = async (req: Request, res: Response) => {
+  let result = await groupService.fetchAvailableUsersForGroup(
+    req.params as any
+  );
+  return res.status(result?.statusCode ?? 400).send(result);
+};
+export default {
+  createGroup,
+  getGroups,
+  addParticipantGroup,
+  getGroupDetails,
+  removeParticipant,
+  fetchAvailableUsersForGroup,
+};

@@ -18,7 +18,19 @@ router
   .post(
     passport.authenticate("jwt", { session: false }),
     groupController.addParticipantGroup
+  )
+  .delete(
+    passport.authenticate("jwt", { session: false }),
+    groupController.removeParticipant
   );
+
+router
+  .route("/users/:group_id")
+  .get(
+    passport.authenticate("jwt", { session: false }),
+    groupController.fetchAvailableUsersForGroup
+  );
+
 router
   .route("/details")
   .get(

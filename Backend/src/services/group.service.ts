@@ -1,22 +1,30 @@
+import mongoose from "mongoose";
 import common from "../common";
 import {
+  IAddGroup,
   IAddGroupParticipant,
   IGetGroupDetails,
-  IGroupModelDocument,
+  IRemoveGroupParticipant,
 } from "../interfaces/group/group.interface";
 import { ChatModel } from "../model/chat.model";
 import { GroupModel } from "../model/groups.model";
 import { UserModel } from "../model/user.model";
+import { senderSocket } from "../config/io.config";
+import { SocketModel } from "../model/socket.model";
 
-const createGroup = async (user: any, body: IGroupModelDocument) => {
+const createGroup = async (user: any, body: IAddGroup) => {
   let { name, about } = body;
   try {
-    let foundUser = await UserModel.findOne({ _id: user._id });
-    if (!foundUser) return common.badRequest("User not found!");
     await GroupModel.create({
       createdAt: new Date(),
-      createdBy: foundUser._id,
-      userDetails: [{ id: foundUser._id, joined_date: new Date() }],
+      createdBy: new mongoose.Types.ObjectId(user._id),
+      userDetails: [
+        {
+          id: new mongoose.Types.ObjectId(user._id),
+          joined_date: new Date(),
+          is_admin: true,
+        },
+      ],
       name,
       about,
     });
@@ -60,10 +68,10 @@ const getMyGroups = async (user: any) => {
 const getGroupDetails = async (user: any, params: IGetGroupDetails) => {
   let { group_id } = params;
   try {
-    let findGroup = await GroupModel.findOne({ _id: group_id })
+    let foundGroup = await GroupModel.findOne({ _id: group_id })
       .populate("userDetails.id")
       .lean();
-    let checkUserExistedGroup = findGroup?.userDetails.find(
+    let checkUserExistedGroup = foundGroup?.userDetails.find(
       (allUsers) => allUsers.id._id.toString() === user._id.toString()
     );
     if (!checkUserExistedGroup)
@@ -71,37 +79,61 @@ const getGroupDetails = async (user: any, params: IGetGroupDetails) => {
         "You are not authorized to access details of this group"
       );
 
-    return common.successRequest(findGroup);
+    return common.successRequest(foundGroup);
   } catch (error) {
     return common.internalServerError();
   }
 };
 const addParticipantGroup = async (user: any, body: IAddGroupParticipant) => {
   try {
-    let { group_id, participant } = body;
-    let findParticpant = await UserModel.findOne({ email: participant });
-    if (!findParticpant)
-      return common.badRequest("Email does not registered with us");
-    let findGroupExists = await GroupModel.findById(group_id);
-    if (!findGroupExists) return common.internalServerError();
-    let checkAdmin =
-      findGroupExists.createdBy.toString() === user._id.toString();
+    let { group_id, participants } = body;
+    let foundExistingGroup = await GroupModel.findById(group_id);
+    if (!foundExistingGroup) return common.internalServerError();
+    let checkAdmin = foundExistingGroup.userDetails.find(
+      (_user) => _user.id.toString() === user._id.toString() && _user.is_admin
+    );
     if (!checkAdmin)
-      common.badRequest(
+      return common.badRequest(
         "You are not authorized to add participant in this group"
       );
-    console.log(findGroupExists.userDetails, "detail");
-    let checkUserAlreadyExist = findGroupExists?.userDetails.find(
-      (x) => x.id.toString() === findParticpant?._id.toString()
-    );
-    if (checkUserAlreadyExist)
-      return common.badRequest("User already existed in group");
-    if (!findGroupExists) return common.internalServerError();
 
-    await GroupModel.findByIdAndUpdate(findGroupExists._id, {
+    if (!foundExistingGroup) return common.internalServerError();
+    let existingUsers = foundExistingGroup.userDetails.map((existingUser) =>
+      existingUser.id.toString()
+    );
+
+    let filteredParticipants = participants
+      .map((participant) => {
+        if (!existingUsers.includes(participant.toString())) return participant;
+      })
+      .filter((x) => x);
+    let toBeAddedUsers = filteredParticipants.map((participant) => {
+      return {
+        id: participant,
+        is_admin: false,
+        joined_at: new Date(),
+      };
+    });
+    let foundSocketsInDB = await SocketModel.find({
+      user_id: {
+        $in: filteredParticipants,
+      },
+    });
+    await Promise.all(
+      foundSocketsInDB.map(async (dbSocket) => {
+        await Promise.all(
+          dbSocket.socket_id.map(async (socket) => {
+            let _socket = senderSocket.sockets.sockets.get(socket);
+            if (_socket) _socket.join(foundExistingGroup?._id?.toString()!);
+          })
+        );
+      })
+    );
+
+    await GroupModel.findByIdAndUpdate(foundExistingGroup._id, {
       $push: {
         userDetails: {
-          $each: [{ id: findParticpant.id, joined_at: new Date() }],
+          $each: toBeAddedUsers,
           $position: 0,
         },
       },
@@ -111,9 +143,63 @@ const addParticipantGroup = async (user: any, body: IAddGroupParticipant) => {
     return common.internalServerError();
   }
 };
+
+const removeParticipantGroup = async (
+  user: any,
+  body: IRemoveGroupParticipant
+) => {
+  try {
+    let { group_id, participant } = body;
+    let foundExistingGroup = await GroupModel.findById(group_id);
+    if (!foundExistingGroup) return common.internalServerError();
+    let checkAdmin = foundExistingGroup.userDetails.find(
+      (_user) => _user.id.toString() === user._id.toString() && _user.is_admin
+    );
+    if (!checkAdmin)
+      return common.badRequest(
+        "You are not authorized to remove participant in this group"
+      );
+    if (!foundExistingGroup) return common.internalServerError();
+
+    let result = await GroupModel.findByIdAndUpdate(foundExistingGroup._id, {
+      $pull: {
+        "userDetails.id": {
+          $eq: new mongoose.Types.ObjectId(participant),
+        },
+      },
+    });
+    return common.successRequest();
+  } catch (error) {
+    return common.internalServerError();
+  }
+};
+
+const fetchAvailableUsersForGroup = async (body: IRemoveGroupParticipant) => {
+  try {
+    let { group_id } = body;
+    let foundExistingGroup = await GroupModel.findById(group_id);
+    if (!foundExistingGroup) return common.internalServerError();
+    let existingUsers = foundExistingGroup.userDetails.map((_user) => _user.id);
+
+    let foundAllUsers = await UserModel.find(
+      {
+        _id: { $nin: existingUsers },
+      },
+      {
+        password: 0,
+      }
+    );
+
+    return common.successRequest({ users: foundAllUsers });
+  } catch (error) {
+    return common.internalServerError();
+  }
+};
 export default {
   createGroup,
   getMyGroups,
   addParticipantGroup,
   getGroupDetails,
+  removeParticipantGroup,
+  fetchAvailableUsersForGroup,
 };

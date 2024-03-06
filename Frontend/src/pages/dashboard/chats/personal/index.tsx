@@ -104,7 +104,7 @@ const PersonalChat = () => {
             usersList && (
               <div className="py-3">
                 {usersList?.map((x) => (
-                  <div className="px-2 mt-1 ">
+                  <div className="px-2 mt-1 " key={x._id}>
                     <div
                       className={`${
                         x.isSelected

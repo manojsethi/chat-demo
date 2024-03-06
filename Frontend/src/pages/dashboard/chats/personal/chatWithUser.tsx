@@ -152,7 +152,7 @@ const ChatWithUser = ({
             {loader ? (
               <Loader />
             ) : (
-              <div className="shadow-3xl dark:shadow bg-white  mt-6   dark: dark:bg-navy-900 overflow-y-auto overflow-x-hidden ">
+              <div className="shadow-2xl dark:shadow bg-white  mt-6   dark: dark:bg-navy-900 overflow-y-auto overflow-x-hidden ">
                 <div className="flex justify-center mt-2 py-4">
                   <p className="text-center text-white bg-[#00A038] px-10 rounded-2xl  ">
                     {formatDate(myChats?.[0]?.date)}

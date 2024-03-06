@@ -19,6 +19,7 @@ export interface IMyGroupsData {
 export interface UserDetail {
   id: Id;
   _id: string;
+  is_admin: boolean;
 }
 export interface Id {
   _id: string;

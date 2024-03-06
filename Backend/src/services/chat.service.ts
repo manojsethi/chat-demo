@@ -29,8 +29,7 @@ const sendMessage = async (user: any, body: IChatModelDocument) => {
         sent_to: userExistedGroup._id,
         chatType: "Group",
       });
-      senderSocket.broadcast
-        .to(userExistedGroup._id.toString())
+      senderSocket.to(userExistedGroup._id.toString())
         .emit("groupMessage", { sent_from: myDetail, message });
 
       return common.successRequest({ success: true });
@@ -87,50 +86,53 @@ const sendMessageSocketService = async (
         sent_to: userExistedGroup._id,
         chatType: "Group",
       });
-      _socket
-        .to(userExistedGroup._id.toString())
-        .emit("groupMessage", {
-          sent_from: myDetail,
-          message,
-          message_type,
-          file_url,
-        });
-
-      return common.successRequest({ success: true });
-    }
-    let findUser = await UserModel.findById(
-      new mongoose.Types.ObjectId(sent_to)
-    ).lean();
-    if (!findUser)
-      return common.badRequest(
-        "This user does not exist or deleted their account"
-      );
-
-    await ChatModel.create({
-      message: message,
-      message_type,
-      file_url,
-      sent_from: user._id,
-      sent_to: findUser._id,
-    });
-    let findUserRoom = await RoomModel.findOne({
-      users: { $all: [findUser._id, user._id] },
-    }).lean();
-    if (findUserRoom)
-      _socket.broadcast.to(findUserRoom._id.toString()).emit("chatMessage", {
-        sent_from: user,
+      _socket.to(userExistedGroup._id.toString()).emit("groupMessage", {
+        sent_from: myDetail,
         message,
         message_type,
+        sent_to: userExistedGroup._id,
         file_url,
+        group_name:userExistedGroup.name
       });
-    return common.successRequest({ success: true });
+
+      return common.successRequest({ success: true });
+    } 
+    else {
+      let findUser = await UserModel.findById(
+        new mongoose.Types.ObjectId(sent_to)
+      ).lean();
+      if (!findUser)
+        return common.badRequest(
+          "This user does not exist or deleted their account"
+        );
+
+      await ChatModel.create({
+        message: message,
+        message_type,
+        file_url,
+        sent_from: user._id,
+        sent_to: findUser._id,
+      });
+      let foundUserRoom = await RoomModel.findOne({
+        users: { $all: [findUser._id, user._id] },
+      }).lean();
+      if (foundUserRoom)
+        _socket.to(foundUserRoom._id.toString()).emit("chatMessage", {
+          sent_from: user,
+          message,
+          message_type,
+          sent_to: foundUserRoom._id,
+          file_url,
+        });
+      return common.successRequest({ success: true });
+    }
   } catch (error) {
     return common.internalServerError();
   }
 };
 const getChatWithUser = async (user: any, body: any) => {
   let { chatUserId } = body;
-  let findUserRoom = await RoomModel.findOne(
+  let foundUserRoom = await RoomModel.findOne(
     {
       users: {
         $all: [
@@ -141,7 +143,7 @@ const getChatWithUser = async (user: any, body: any) => {
     },
     { upsert: true }
   );
-  if (!findUserRoom)
+  if (!foundUserRoom)
     await RoomModel.create({
       chatType: "personal",
       users: [chatUserId, user._id],
